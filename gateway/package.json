@@ -1,0 +1,1 @@
+{"name":"startsys-gateway","version":"1.0.0","private":true,"type":"module","engines":{"node":">=22.13.0"},"scripts":{"start":"node server.js","test":"node --test tests/*.test.js"},"dependencies":{"@supabase/supabase-js":"2.110.1","baileys":"7.0.0-rc13","express":"4.21.2","ffmpeg-static":"5.2.0","qrcode":"1.5.4","pino":"9.6.0"}}
