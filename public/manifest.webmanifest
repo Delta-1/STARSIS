@@ -1,1 +1,1 @@
-{"name":"STARSIS — Atendimento inteligente","short_name":"STARSIS","start_url":"./","scope":"./","display":"standalone","background_color":"#111015","theme_color":"#111015","icons":[{"src":"starsis-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]}
+{"name":"STARSIS — Atendimento inteligente","short_name":"STARSIS","start_url":"./","scope":"./","display":"standalone","background_color":"#111015","theme_color":"#111015","icons":[{"src":"starsis-compass.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]}

@@ -10,7 +10,7 @@ import SupportBoard from './SupportBoard';
 import AutomationStudio from './AutomationStudio';
 import {createVoiceRecorder,recordingExtension,MAX_RECORDING_MS} from './recording';
 import {mergeMessages} from './messages.js';
-const logo=import.meta.env.BASE_URL+'starsis-icon.svg';
+const logo=import.meta.env.BASE_URL+'starsis-compass.svg';
 type Row=Record<string,any>;
 type State={company:Row|null,contacts:Row[],agents:Row[],numbers:Row[],automations:Row[],meetings:Row[],activity:Row[],stickers:Row[]};
 const empty:State={company:null,contacts:[],agents:[],numbers:[],automations:[],meetings:[],activity:[],stickers:[]};
