@@ -17,11 +17,15 @@
 - Auditoria das dependências de produção do gateway: nenhum alerta após atualização do Express.
 - RLS ativada em todas as tabelas StartSys; papéis anon/authenticated do banco compartilhado sem leitura dessas tabelas.
 
+## Publicação
+
+Interface publicada no GitHub Pages e serviço persistente publicado no Railway. O commit `8aa2622` passou nos workflows de verificação e publicação.
+
 ## Exige conexão/configuração do titular
 
 - Ler o QR Code de um WhatsApp no StartSys e testar envio, recebimento e reprodução de áudio nos celulares.
 - Configurar chave/modelo do provedor de IA, testar o agente e então ativar o atendimento automático.
 - Validar síntese de voz com a voz escolhida e a conta do provedor.
-- Habilitar GitHub Pages com Source = GitHub Actions em Settings → Pages. O primeiro workflow passou build e testes, mas a integração não tinha permissão para habilitar Pages (`Resource not accessible by integration`). Não foi afirmada publicação bem-sucedida do frontend.
+- GitHub Pages e Actions concluíram a publicação com sucesso. A tela de entrada foi verificada em `https://delta-1.github.io/STARSIS/`. O bloqueio inicial de habilitação do Pages foi resolvido.
 
 Nenhuma mensagem foi enviada a clientes durante a verificação. Os dados fictícios de QA são removidos ao término da validação. A imagem `StartSys_preview.jpg` mostra o modo demonstração, com dados fictícios.
