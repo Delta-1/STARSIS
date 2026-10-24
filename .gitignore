@@ -7,3 +7,5 @@ gateway/node_modules/
 .DS_Store
 *.log
 test-results/
+
+node_modules
