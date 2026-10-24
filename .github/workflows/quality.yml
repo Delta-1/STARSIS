@@ -1,4 +1,4 @@
-name: Verificar StartSys
+name: Verificar STARSIS
 on:
   pull_request:
   push:

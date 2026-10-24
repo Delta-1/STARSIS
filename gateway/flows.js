@@ -98,7 +98,7 @@ export function installFlows(app,deps){
   // Ambiguous sends from a previous process are review-only, never retried automatically.
   const stale=await db.from('startsys_records').select('*').eq('kind','flow-run').eq('data->>status','sending').lt('updated_at',new Date(Date.now()-5*60000).toISOString()).limit(20);
   for(const row of stale.data||[])await serial(`flow:${row.id}`,async()=>{const current=await get(row.company_id,row.id,'flow-run');if(current.status==='sending'&&Date.parse(current.updatedAt)<Date.now()-5*60000)await finish({...current,companyId:row.company_id},'needs_review','O serviço reiniciou durante um envio. Confira antes de executar novamente.');});
- }catch{console.warn('StartSys flow cycle interrupted');}finally{running=false;}}
+ }catch{console.warn('STARSIS flow cycle interrupted');}finally{running=false;}}
  if(deps.startTimer!==false)setInterval(tick,1000).unref();
  const cancelContact=async(cid,contactId,reason='Interrompido por atendimento humano.')=>serial(`flow:${idFor(cid,'active-flow',contactId)}`,async()=>{const run=await readRun(cid,contactId);if(run&&active(run))await finish(run,'cancelled',reason);});
  return {incoming,start,runOne,tick,cancelContact};

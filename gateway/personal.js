@@ -23,7 +23,7 @@ export function installPersonal(app,deps){
   const phone=ownerPhone(co.settings);if(!co.settings.notifyOwnerWhatsApp||phone.length<8)return;
   try{
    const numbers=await rows(co.id,'number'),number=numbers.find(n=>n.id===co.settings.notificationNumberId)||numbers.find(n=>n.connectRequested);if(!number)return;
-   const session=connected(number.id),outboundId=generateMessageIDV2(session.sock.user?.id);session.outboundIds??=new Set();session.outboundIds.add(outboundId);if(session.outboundIds.size>1000)session.outboundIds.delete(session.outboundIds.values().next().value);const sent=await session.sock.sendMessage(`${phone}@s.whatsapp.net`,{text:`StartSys · ${title}\n\n${text}\n\nhttps://delta-1.github.io/STARSIS/#assistente`},{messageId:outboundId});
+   const session=connected(number.id),outboundId=generateMessageIDV2(session.sock.user?.id);session.outboundIds??=new Set();session.outboundIds.add(outboundId);if(session.outboundIds.size>1000)session.outboundIds.delete(session.outboundIds.values().next().value);const sent=await session.sock.sendMessage(`${phone}@s.whatsapp.net`,{text:`STARSIS · ${title}\n\n${text}\n\nhttps://delta-1.github.io/STARSIS/#assistente`},{messageId:outboundId});
    session.outboundIds??=new Set();if(sent?.key?.id)session.outboundIds.add(sent.key.id);
   }catch{await put(co.id,'activity',{text:'O aviso está no aplicativo. Não foi possível entregar a notificação no WhatsApp configurado.',type:'warning',at:new Date().toISOString()});}
  }
@@ -101,7 +101,7 @@ export function installPersonal(app,deps){
   }
   const {data:events}=await db.from('startsys_records').select('*').eq('kind','event').eq('data->>status','scheduled').gte('data->>at',new Date().toISOString()).lte('data->>at',new Date(Date.now()+5*60000).toISOString()).limit(30);
   for(const event of events||[]){const co=await companyById(event.company_id);await notifyOwner(co,'Compromisso em breve',`${event.data.title}\n${new Date(event.data.at).toLocaleString('pt-BR',{timeZone:co.settings.timezone||'America/Sao_Paulo'})}`,{type:'event',id:event.id},idFor(co.id,'event-reminder',event.id));}
- }catch{console.warn('StartSys personal assistant cycle interrupted');}finally{running=false;}}
+ }catch{console.warn('STARSIS personal assistant cycle interrupted');}finally{running=false;}}
  setInterval(()=>tick(),5000).unref();
  return {requestApproval,queue,report};
 }

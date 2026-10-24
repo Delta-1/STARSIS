@@ -1,4 +1,4 @@
-name: Publicar StartSys no GitHub Pages
+name: Publicar STARSIS no GitHub Pages
 on:
   push:
     branches: [main]

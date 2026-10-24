@@ -1,4 +1,4 @@
-# StartSys
+# STARSIS
 
 CRM focado em atendimento pelo WhatsApp, com interface inspirada no ONLY, navegação móvel, agentes de IA e automações. Código do projeto no repositório **Delta-1/STARSIS**.
 
@@ -13,12 +13,12 @@ GitHub Pages não executa um servidor Node nem mantém sockets do WhatsApp. O Ra
 
 ## Usar
 
-1. Acesse a interface e escolha **Criar empresa**. Cadastre seu nome, e-mail e senha exclusiva do StartSys. O cadastro não cria ou altera um usuário do Workspace ou Amora.
+1. Acesse a interface e escolha **Criar empresa**. Cadastre seu nome, e-mail e senha exclusiva do STARSIS. O cadastro não cria ou altera um usuário do Workspace ou Amora.
 2. Informe o nome e segmento da empresa.
 3. Em **Conexões**, adicione um WhatsApp e clique em **Conectar**. Leia o QR Code em WhatsApp → Aparelhos conectados. Nunca conectamos seus números existentes automaticamente.
 4. Em **Agentes de IA**, crie um agente. Configure identidade, etapas, regras, conhecimento, provedor, modelo, chave de API e voz. Teste a resposta antes de ativá-lo.
 5. Ative **Atendimento automático** quando quiser respostas reais. Agentes começam desativados e a chave geral da empresa começa desligada.
-6. Em **Agenda**, adicione os horários disponíveis e vendedores. O agente só pode reservar um horário cadastrado e aceito pelo cliente; a reunião fica na agenda do StartSys, com o contexto do contato.
+6. Em **Agenda**, adicione os horários disponíveis e vendedores. O agente só pode reservar um horário cadastrado e aceito pelo cliente; a reunião fica na agenda do STARSIS, com o contexto do contato.
 7. Use **CRM** para mover oportunidades por arraste ou seletor. No perfil, mantenha caderno, dados e valor da oportunidade.
 8. Em **Automações**, configure follow-up por etapa. Cada regra envia no máximo uma vez por ciclo de conversa. Pedidos de parada e atendimento humano suspendem o follow-up.
 
@@ -103,7 +103,7 @@ Funcionários usam sempre o Kanban de atendimento, inspirado no segundo modo do 
 
 **Automações → Áudios salvos** permite gravar/revisar/nomear ou importar vários arquivos de uma vez (inclusive uma sequência de 30). A biblioteca é privada da empresa: até 500 áudios, 16 MB por entrada, convertidos para mensagem de voz Ogg/Opus. Os áudios podem ser revisados e enviados pelo funcionário durante o atendimento.
 
-O editor de **Fluxos visuais** é nativo do StartSys, no estilo de conexão por blocos do n8n; não é uma instalação do n8n. Oferece Início, Enviar texto, Enviar áudio, Condição, Aguardar, Esperar resposta, Consultar IA, Atendimento humano e Fim. Arraste os blocos e conecte suas saídas; no celular, também use os seletores de destino. A simulação percorre o caminho sem enviar mensagens ou consultar provedores. Os fluxos têm até 60 blocos, sem ciclos, e podem funcionar sem nenhum agente; o bloco Consultar IA usa apenas o agente escolhido naquela etapa, mesmo que ele esteja desligado no atendimento geral.
+O editor de **Fluxos visuais** é nativo do STARSIS, no estilo de conexão por blocos do n8n; não é uma instalação do n8n. Oferece Início, Enviar texto, Enviar áudio, Condição, Aguardar, Esperar resposta, Consultar IA, Atendimento humano e Fim. Arraste os blocos e conecte suas saídas; no celular, também use os seletores de destino. A simulação percorre o caminho sem enviar mensagens ou consultar provedores. Os fluxos têm até 60 blocos, sem ciclos, e podem funcionar sem nenhum agente; o bloco Consultar IA usa apenas o agente escolhido naquela etapa, mesmo que ele esteja desligado no atendimento geral.
 
 O fluxo pode começar manualmente no atendimento ou quando chegar uma mensagem correspondente. Início automático requer o atendimento automático geral ligado e respeita pausa, responsável humano, opt-out, prioridade e intervalo por contato. Grupos não acionam esses fluxos. Um fluxo ativo impede respostas concorrentes do bot e follow-ups. Fluxos manuais são autorizados explicitamente pelo operador e funcionam com o automático geral desligado. A resposta manual, transferência, finalização ou desativação do responsável interrompe os próximos envios. Esperas e execuções ficam persistidas no servidor, mesmo com o aplicativo fechado. Na aba **Execuções**, o administrador acompanha e interrompe fluxos. Falhas de envio ambíguas exigem revisão e não são reenviadas automaticamente após reinício.
 
