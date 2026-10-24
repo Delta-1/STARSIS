@@ -3,6 +3,8 @@
 ## Verificado
 
 - Build TypeScript/Vite local e build do GitHub Actions.
+- Oito testes locais de autenticação, revogação/expiração de sessão, isolamento, pausa das automações e preservação do histórico.
+- GitHub Pages configurado com Source = GitHub Actions; publicação da interface compilada pelo workflow `pages.yml`.
 - Testes de senha, criptografia, proteção de chaves e seleção de agente por etapa.
 - Cadastro e login com duas contas fictícias independentes; saída revoga a sessão.
 - Empresas distintas não conseguem ler ou alterar contatos, agentes e conexões umas das outras.
