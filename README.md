@@ -75,8 +75,22 @@ O workflow `pages.yml` gera `dist/`, publica com `actions/deploy-pages` e pode s
 ## Limites da primeira versão
 
 - A agenda é interna; não existe sincronização com Google Calendar.
-- O atendimento integrado cobre conversas individuais. Grupos, campanhas em massa e módulos de escritório do Workspace não fazem parte desta versão.
+- Conversas individuais e grupos são suportados. Sincronize grupos em Conexões; entre por convite válido. A IA começa pausada nos grupos e, quando liberada, só responde a menções ou respostas diretas. Campanhas em massa não estão incluídas.
 - Cada conta cria uma empresa administrada por seu titular; convite de equipe e permissões por colaborador ainda não foram implementados.
 - Recuperação automática de senha por e-mail requer um serviço de e-mail e ainda não está disponível.
 - Um QR Code gerado ou um `waId` retornado confirma uma etapa técnica; somente um teste com os celulares confirma recebimento e reprodução do áudio.
 - Antes de operar sem supervisão, valide seus agentes com dados da sua empresa, uma conversa real e seus horários cadastrados.
+
+## Uso próprio e mídia (1.2)
+
+Escolha **Para empresa** ou **Para uso próprio** ao criar o espaço; é possível mudar nas configurações. Uso próprio oferece Meu dia, Meu assistente (chat privado), relatórios, agenda e pedidos de aprovação. Configure a chave de IA em Meus bots, mesmo se não ativar o bot no WhatsApp. Escolha responder como assistente ou no seu tom, após 1, 2 ou 5 minutos. Uma resposta manual cancela a resposta automática pendente. Assuntos incertos podem ser aprovados e editados antes do envio.
+
+Os avisos ficam no aplicativo. Para recebê-los em outro WhatsApp seu, informe DDI/DDD/número nas configurações e habilite os avisos. Esse número pode conversar em particular com o assistente e responder `APROVAR CÓDIGO`. Notificações do navegador funcionam enquanto o aplicativo estiver aberto. A agenda gera lembretes cinco minutos antes; não integra Google Calendar.
+
+Áudios WebM/Opus e AAC são decodificados por completo e convertidos em Ogg/Opus mono, com validação de estrutura, CRC e reprodução pelo FFmpeg. A criptografia de transporte é testada offline com a versão instalada do Baileys. O envio também verifica o arquivo criptografado no CDN do WhatsApp antes de compartilhar a mensagem.
+
+Figurinhas: salve imagens/figurinhas recebidas ou adicione PNG/JPEG/WebP na coleção. Imagens viram WebP 512 × 512; animações já compatíveis são preservadas. Limite: 200 por espaço. Contatos usam o telefone real quando o WhatsApp disponibiliza o mapeamento; identificadores LID nunca são apresentados como telefone. A sincronização importa contatos e o histórico disponibilizado pelo WhatsApp, que pode não incluir todo o histórico antigo do celular.
+
+A chave `ELEVENLABS_API_KEY` fica no servidor. O cadastro do bot recebe somente o ID da voz opcional. Sem ID, usa-se a voz padrão.
+
+Validação: `npm test`, `npm run build` e, após `npm ci --prefix gateway`, `npm run test:media`.

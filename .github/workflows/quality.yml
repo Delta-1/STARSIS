@@ -14,5 +14,7 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm test
+      - run: npm ci --prefix gateway --no-audit --no-fund
+      - run: npm run test:media
       - run: npm run build
       - run: node --check gateway/server.js && node --check gateway/auth.js
