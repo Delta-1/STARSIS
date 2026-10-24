@@ -76,7 +76,7 @@ O workflow `pages.yml` gera `dist/`, publica com `actions/deploy-pages` e pode s
 
 - A agenda é interna; não existe sincronização com Google Calendar.
 - Conversas individuais e grupos são suportados. Sincronize grupos em Conexões; entre por convite válido. A IA começa pausada nos grupos e, quando liberada, só responde a menções ou respostas diretas. Campanhas em massa não estão incluídas.
-- Cada conta cria uma empresa administrada por seu titular; convite de equipe e permissões por colaborador ainda não foram implementados.
+- Cada conta de administrador cria seu próprio espaço. Funcionários entram por código da empresa e senha individual, com acesso restrito ao atendimento Kanban.
 - Recuperação automática de senha por e-mail requer um serviço de e-mail e ainda não está disponível.
 - Um QR Code gerado ou um `waId` retornado confirma uma etapa técnica; somente um teste com os celulares confirma recebimento e reprodução do áudio.
 - Antes de operar sem supervisão, valide seus agentes com dados da sua empresa, uma conversa real e seus horários cadastrados.
@@ -94,3 +94,19 @@ Figurinhas: salve imagens/figurinhas recebidas ou adicione PNG/JPEG/WebP na cole
 A chave `ELEVENLABS_API_KEY` fica no servidor. O cadastro do bot recebe somente o ID da voz opcional. Sem ID, usa-se a voz padrão.
 
 Validação: `npm test`, `npm run build` e, após `npm ci --prefix gateway`, `npm run test:media`.
+
+## Equipe de suporte e automações visuais (1.3)
+
+Na criação da empresa, escolha **Só agentes de IA e automações**, **Equipe de funcionários** ou **Funcionários + agentes de IA**. A opção também fica em Configurações. Em **Funcionários**, o administrador habilita a equipe, cria o nome de cada funcionário e copia o acesso. O **código da empresa tem quatro dígitos** e aparece também na página inicial; a **senha individual é gerada automaticamente**, aparece somente ao criar/redefinir e pode ser trocada pelo funcionário. Na tela de entrada, use a aba **Funcionário**, com código da empresa e senha, sem e-mail. O código identifica a empresa e não substitui a senha.
+
+Funcionários usam sempre o Kanban de atendimento, inspirado no segundo modo do Workspaces: **A fazer** e **Em andamento**. Ao assumir, a conversa recebe um responsável exclusivo. **Transferir** revoga imediatamente o acesso do responsável anterior; **Finalizar** preserva as mensagens na lista de finalizados, e uma nova mensagem do contato reabre a fila com o histórico contínuo. O administrador acompanha os atendimentos e escolhe o responsável. Funcionários não acessam chaves, configurações, agentes, relatórios privados nem o chat pessoal do administrador. Desativar ou redefinir a senha encerra sessões; desativar também devolve os atendimentos abertos à fila.
+
+**Automações → Áudios salvos** permite gravar/revisar/nomear ou importar vários arquivos de uma vez (inclusive uma sequência de 30). A biblioteca é privada da empresa: até 500 áudios, 16 MB por entrada, convertidos para mensagem de voz Ogg/Opus. Os áudios podem ser revisados e enviados pelo funcionário durante o atendimento.
+
+O editor de **Fluxos visuais** é nativo do StartSys, no estilo de conexão por blocos do n8n; não é uma instalação do n8n. Oferece Início, Enviar texto, Enviar áudio, Condição, Aguardar, Esperar resposta, Consultar IA, Atendimento humano e Fim. Arraste os blocos e conecte suas saídas; no celular, também use os seletores de destino. A simulação percorre o caminho sem enviar mensagens ou consultar provedores. Os fluxos têm até 60 blocos, sem ciclos, e podem funcionar sem nenhum agente; o bloco Consultar IA usa apenas o agente escolhido naquela etapa, mesmo que ele esteja desligado no atendimento geral.
+
+O fluxo pode começar manualmente no atendimento ou quando chegar uma mensagem correspondente. Início automático requer o atendimento automático geral ligado e respeita pausa, responsável humano, opt-out, prioridade e intervalo por contato. Grupos não acionam esses fluxos. Um fluxo ativo impede respostas concorrentes do bot e follow-ups. Fluxos manuais são autorizados explicitamente pelo operador e funcionam com o automático geral desligado. A resposta manual, transferência, finalização ou desativação do responsável interrompe os próximos envios. Esperas e execuções ficam persistidas no servidor, mesmo com o aplicativo fechado. Na aba **Execuções**, o administrador acompanha e interrompe fluxos. Falhas de envio ambíguas exigem revisão e não são reenviadas automaticamente após reinício.
+
+Dados de equipe e fluxos utilizam as tabelas privadas já existentes; contas técnicas internas de funcionários não são endereços de e-mail do usuário. Senhas usam scrypt; busca do acesso utiliza uma impressão HMAC do servidor, e sessões guardam somente hashes de tokens. Índices de unicidade e das filas estão em `supabase/migrations/*_startsys_team_and_flow_indexes.sql`. Essa atualização não habilita equipes nem cria funcionários ou fluxos automaticamente para contas existentes.
+
+Validação adicional: testes locais de entrada de funcionário, isolamento por empresa, atribuição concorrente, transferência, revogação de sessão, reset de senha, 30 áudios em um fluxo, condições, espera por resposta, interrupção por atendimento humano e preservação do histórico das execuções. Os testes de navegador usam banco em memória e WhatsApp simulado, sem enviar mensagens a contatos reais.

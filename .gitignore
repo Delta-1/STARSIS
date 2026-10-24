@@ -9,3 +9,5 @@ gateway/node_modules/
 test-results/
 
 node_modules
+
+supabase/.temp/

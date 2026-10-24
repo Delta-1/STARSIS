@@ -10,8 +10,8 @@ export function installPersonal(app,deps){
    if(error)throw fail(503,'Não foi possível preparar o relatório.');total=count||0;messages.push(...data.map(r=>({...r.data,id:r.id})));if(data.length<1000)break;
   }
   const contacts=(await rows(cid,'contact')).filter(c=>!c.redirectTo),sent=messages.filter(m=>m.direction==='out'),daily={};
-  for(const m of messages){const date=String(m.at||'').slice(0,10);daily[date]??={date,incoming:0,sent:0,bot:0};if(m.direction==='in')daily[date].incoming++;else{daily[date].sent++;if(m.agentId)daily[date].bot++;}}
-  return {since,total,truncated:total>messages.length,incoming:messages.length-sent.length,sent:sent.length,bot:sent.filter(m=>m.agentId).length,manual:sent.filter(m=>!m.agentId).length,daily:Object.values(daily).sort((a,b)=>a.date.localeCompare(b.date)),unanswered:contacts.filter(c=>!c.isGroup&&c.lastDirection==='in'&&Date.parse(c.lastAt)<Date.now()-120000).map(c=>({id:c.id,name:c.name,phone:c.phone,lastAt:c.lastAt,lastMessage:c.lastMessage})),recent:messages.slice(0,80).map(m=>({...m,contactName:contacts.find(c=>c.id===m.contactId)?.name||'Contato'}))};
+  for(const m of messages){const date=String(m.at||'').slice(0,10);daily[date]??={date,incoming:0,sent:0,bot:0};if(m.direction==='in')daily[date].incoming++;else{daily[date].sent++;if(m.agentId||m.flowId)daily[date].bot++;}}
+  return {since,total,truncated:total>messages.length,incoming:messages.length-sent.length,sent:sent.length,bot:sent.filter(m=>m.agentId||m.flowId).length,manual:sent.filter(m=>!m.agentId&&!m.flowId).length,daily:Object.values(daily).sort((a,b)=>a.date.localeCompare(b.date)),unanswered:contacts.filter(c=>!c.isGroup&&c.lastDirection==='in'&&Date.parse(c.lastAt)<Date.now()-120000).map(c=>({id:c.id,name:c.name,phone:c.phone,lastAt:c.lastAt,lastMessage:c.lastMessage})),recent:messages.slice(0,80).map(m=>({...m,contactName:contacts.find(c=>c.id===m.contactId)?.name||'Contato'}))};
  }
  async function overview(cid){
   const [approvals,events,notifications,messages]=await Promise.all(['approval','event','notification','assistant-message'].map(k=>rows(cid,k,k==='assistant-message'?100:300)));
