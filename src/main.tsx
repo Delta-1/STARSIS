@@ -7,6 +7,7 @@ import {BoardReminders} from './Whiteboard';
 import {json,hasToken,setToken,clearMedia} from './api';
 import './styles.css';
 import './messenger.css';
+import './mobile.css';
 export default function Root(){
  const [user,setUser]=useState<any>(null),[checking,setChecking]=useState(hasToken()),[claiming,setClaiming]=useState(new URLSearchParams(location.search).has('invite')||new URLSearchParams(location.search).has('empresa'));
  useEffect(()=>{if(hasToken())json('auth/me').then(setUser).catch(()=>setToken('')).finally(()=>setChecking(false));const expired=()=>{setToken('');clearMedia();setUser(null);};window.addEventListener('startsys-session-expired',expired);return()=>window.removeEventListener('startsys-session-expired',expired);},[]);

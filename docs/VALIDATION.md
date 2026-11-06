@@ -40,3 +40,10 @@ Nenhuma mensagem foi enviada a clientes durante a verificação. Os dados fictí
 - Prévia no navegador: conversas, abertura de histórico, Kanban, atribuição de responsável, criação/edição de post-it e arraste livre conferidos visualmente. Demonstração não envia mensagens reais.
 - Produção: QR real gerado antes do cadastro; nota salva e movida no banco; alteração com revisão antiga rejeitada; cursor autenticado recebido; convites bloqueados no teste; espaço temporário removido e sessão revogada.
 - Limites: não foi pareado celular real nesta etapa. Lembretes de post-its exigem o sistema aberto; não há serviço push em segundo plano.
+
+## Mobile — 05/11/2026 (Acre)
+
+- Visual mobile com lista em largura total, cabeçalho próprio, navegação inferior, botão de nova conversa e chat em tela cheia.
+- Conferência no navegador em quadros de 320, 390 e 430 pixels: lista, chat, envio em demonstração, Kanban, atribuição de responsável, retorno à fila, quadro branco, menu e tema escuro. Sem envio de mensagens reais nesta etapa.
+- Botões de voz/envio alternam conforme o rascunho. A interface usa a altura visível e as margens de segurança do dispositivo.
+- TypeScript e build de produção validados. Teclado virtual e permissões de microfone não foram validados em um aparelho físico.
