@@ -47,3 +47,11 @@ Nenhuma mensagem foi enviada a clientes durante a verificação. Os dados fictí
 - Conferência no navegador em quadros de 320, 390 e 430 pixels: lista, chat, envio em demonstração, Kanban, atribuição de responsável, retorno à fila, quadro branco, menu e tema escuro. Sem envio de mensagens reais nesta etapa.
 - Botões de voz/envio alternam conforme o rascunho. A interface usa a altura visível e as margens de segurança do dispositivo.
 - TypeScript e build de produção validados. Teclado virtual e permissões de microfone não foram validados em um aparelho físico.
+
+## Grupos — 05/11/2026 (Acre)
+
+- Sincronização mantém nome, quantidade de participantes, permissão de envio e responsável existente.
+- Grupos sem mensagens ficam acessíveis pelo filtro Grupos no Kanban; a fila geral conserva apenas conversas com atividade.
+- Testes verificam permissão por telefone/LID, grupos restritos a administradores, isolamento por empresa e transferência de grupo entre atendentes.
+- Prévia: listagem de grupos, resposta em demonstração com identificação dos autores, bloqueio de envio em grupo de avisos e abertura de grupo vazio no Kanban.
+- `npm test`: 36 testes passaram; TypeScript/Vite e sintaxe do servidor validados. Sem envio real para grupos ou contatos durante a verificação.

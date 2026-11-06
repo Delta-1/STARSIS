@@ -25,3 +25,16 @@ test('password reset invalidates old sessions and secret, while administrator ca
  assert.equal((await h.request('/auth/me','GET',{},login.body.token)).statusCode,401);assert.equal((await h.request('/auth/employee','POST',old)).statusCode,401);assert.equal((await h.request('/auth/employee','POST',reset.body)).statusCode,200);
  assert.equal(staffVisible({id:'a'},{assignedTo:'b'}),false);assert.equal(staffCanReply({id:'a'},{assignedTo:'a'}),true);
 });
+
+test('an empty synchronized group is visible to staff, claimable and transferable with the same exclusive history permissions',async()=>{
+ const h=await setup(),staff=[];
+ for(const name of ['Atendente A','Atendente B']){const created=await h.request('/team/employees','POST',{name},h.ownerToken);const auth=await h.request('/auth/employee','POST',{companyCode:created.body.companyCode,password:created.body.password});staff.push({id:created.body.employee.id,token:auth.body.token});}
+ await h.put('co-a','contact',{name:'Suporte do cliente',isGroup:true,jid:'1200001@g.us',numberId:'company-number',paused:true},'group-contact');
+ const [a,b]=staff,bootstrap=await h.request('/bootstrap','GET',{},a.token);assert.equal(bootstrap.body.contacts.find(c=>c.id==='group-contact').isGroup,true);
+ assert.equal((await h.request('/team/contacts/group-contact/claim','POST',{},a.token)).statusCode,200);
+ assert.equal((await h.request('/send','POST',{contactId:'group-contact',text:'Resposta no grupo'},a.token)).statusCode,200);
+ assert.equal((await h.request('/send','POST',{contactId:'group-contact',text:'Não autorizado'},b.token)).statusCode,403);
+ await h.request('/team/contacts/group-contact/transfer','POST',{employeeId:b.id},a.token);
+ assert.equal((await h.request('/contacts/group-contact/messages','GET',{},a.token)).statusCode,403);
+ assert.equal((await h.request('/send','POST',{contactId:'group-contact',text:'Continuar no grupo'},b.token)).statusCode,200);
+});

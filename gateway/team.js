@@ -74,7 +74,7 @@ export function createTeam(deps){
   if(!req.employee)return next();const cid=req.employeeCompany.id;req.company=req.employeeCompany;
   const path=req.path,method=req.method;
   if(method==='GET'&&path==='/bootstrap'){
-   const [contacts,stickers,directory]=await Promise.all([rows(cid,'contact'),rows(cid,'sticker'),employees(cid)]);
+   const [contacts,stickers,directory]=await Promise.all([rows(cid,'contact',50000),rows(cid,'sticker'),employees(cid)]);
    return res.json({company:{id:cid,name:req.company.name,settings:{teamEnabled:true,usageMode:'company',timezone:req.company.settings.timezone}},contacts:contacts.filter(c=>staffVisible(req.employee,c)).map(c=>({...c,...(!c.assignedTo?{notes:'',email:'',business:'',tags:'',mergedContactIds:[]}:{} )})),stickers,employees:directory,agents:[],numbers:[],automations:[],meetings:[],activity:[]});
   }
   if((path==='/whiteboard'||/^\/whiteboard\/[^/]+$/.test(path))&&['GET','POST','PATCH','DELETE'].includes(method))return next();

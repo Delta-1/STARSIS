@@ -117,3 +117,11 @@ Sem migração de banco: novos registros usam as tabelas privadas existentes. O 
 Testes temporários recebem tokens limitados a 24 horas, criação limitada por IP e limpeza automática de conexões e registros expirados. Convites não contêm o código empresarial nem senhas; somente o hash do token fica salvo. Funcionários continuam sem acesso às chaves, dados privados do administrador ou conversas atribuídas a outra pessoa.
 
 A interface é inspirada no WhatsApp Web; não é uma implementação integral do cliente oficial. Chamadas de voz/vídeo, Status e Canais não estão implementados. Histórico antigo depende do que o WhatsApp disponibiliza na vinculação. Validação de envio, recebimento, áudio e mídia com celulares reais ainda precisa de um número pareado pelo responsável.
+
+## Grupos no atendimento (1.4.1)
+
+Em **Conversas → Grupos**, abra um grupo e responda no próprio grupo, incluindo texto, áudio, anexos, figurinhas e resposta citada. O botão **Sincronizar** busca os grupos do WhatsApp conectado; essa sincronização também ocorre ao conectar. É possível entrar em grupo por convite em Conexões, respeitando eventual aprovação dos administradores.
+
+No Kanban, o filtro **Grupos** inclui grupos sincronizados sem mensagens anteriores. O atendente assume o grupo para abrir o histórico e responder; transferência muda o responsável e revoga o acesso anterior. Cada mensagem recebida mostra autor; respostas humanas enviadas pelo Starsis registram o operador dentro do CRM. Isso não acrescenta assinatura automática ao texto enviado para o WhatsApp.
+
+Grupos de avisos que só aceitam administradores têm o envio bloqueado quando o número conectado não é administrador. A permissão é conferida novamente no WhatsApp a cada envio. A IA continua pausada por padrão nos grupos.
