@@ -1,6 +1,6 @@
 # STARSIS
 
-CRM focado em atendimento pelo WhatsApp, com interface inspirada no ONLY, navegação móvel, agentes de IA e automações. Código do projeto no repositório **Delta-1/STARSIS**.
+CRM focado em atendimento pelo WhatsApp, com visual familiar ao WhatsApp Web, Kanban de atendimento para equipes, quadro branco compartilhado, agentes de IA e automações. Código do projeto no repositório **Delta-1/STARSIS**.
 
 ## Arquitetura
 
@@ -13,14 +13,13 @@ GitHub Pages não executa um servidor Node nem mantém sockets do WhatsApp. O Ra
 
 ## Usar
 
-1. Acesse a interface e escolha **Criar empresa**. Cadastre seu nome, e-mail e senha exclusiva do STARSIS. O cadastro não cria ou altera um usuário do Workspace ou Amora.
-2. Informe o nome e segmento da empresa.
-3. Em **Conexões**, adicione um WhatsApp e clique em **Conectar**. Leia o QR Code em WhatsApp → Aparelhos conectados. Nunca conectamos seus números existentes automaticamente.
-4. Em **Agentes de IA**, crie um agente. Configure identidade, etapas, regras, conhecimento, provedor, modelo, chave de API e voz. Teste a resposta antes de ativá-lo.
-5. Ative **Atendimento automático** quando quiser respostas reais. Agentes começam desativados e a chave geral da empresa começa desligada.
-6. Em **Agenda**, adicione os horários disponíveis e vendedores. O agente só pode reservar um horário cadastrado e aceito pelo cliente; a reunião fica na agenda do STARSIS, com o contexto do contato.
-7. Use **CRM** para mover oportunidades por arraste ou seletor. No perfil, mantenha caderno, dados e valor da oportunidade.
-8. Em **Automações**, configure follow-up por etapa. Cada regra envia no máximo uma vez por ciclo de conversa. Pedidos de parada e atendimento humano suspendem o follow-up.
+1. Acesse https://delta-1.github.io/STARSIS/. A primeira tela prepara um **QR Code real**, antes do cadastro. Leia em WhatsApp → Aparelhos conectados.
+2. Após conectar, escolha **Testar o CRM agora**, **Salvar meu acesso** ou **Entrar na minha conta**. O teste dura 24 horas; sua empresa começa com respostas automáticas desligadas. Salvar o cadastro mantém o número, o espaço e as conversas. Ao entrar em uma conta que já tem empresa, abre-se a empresa existente e encerra-se a conexão temporária. Contas sem empresa aproveitam a conexão do teste.
+3. Na tela de conversas, pesquise contatos, responda mensagens citadas, envie arquivos, voz e figurinhas, reaja, edite textos dentro do prazo e encaminhe mensagens. O perfil permite fixar, favoritar e arquivar contatos.
+4. Em **Funcionários**, habilite a equipe, gere o **link de cadastro** e distribua-o aos atendentes. Cada pessoa cria nome e senha e já entra no atendimento da empresa. O link dura sete dias e pode ser revogado; gerar outro substitui o anterior. Também há cadastro por código de quatro dígitos, quando explicitamente habilitado pelo administrador, além do acesso individual criado pelo administrador.
+5. O **Kanban de atendimento** é operacional: **A fazer** e **Em andamento**. Assumir reserva a conversa para uma única pessoa; transferência revoga o acesso do responsável anterior. Finalizar preserva o histórico e uma nova mensagem reabre a fila. O funil de vendas continua disponível em **Aplicativos → Oportunidades**.
+6. O **Quadro branco** é compartilhado por todos da empresa. Crie post-its, escolha a cor, edite o texto, arraste livremente e marque como concluído. Setas do teclado também movem as notas. Um lembrete opcional gera aviso dentro do Starsis e, com permissão, no navegador, enquanto o sistema estiver aberto. Notas usam revisão para evitar sobrescrever mudanças simultâneas.
+7. Configure agentes de IA, automações e agenda em **Aplicativos**. A chave de API continua somente no servidor. O atendimento automático precisa ser habilitado explicitamente.
 
 **Demonstração** usa dados fictícios em memória e não envia mensagens nem altera a empresa real. Números reais, leitura do QR Code e a chave de IA do provedor são necessários para operar.
 
@@ -110,3 +109,11 @@ O fluxo pode começar manualmente no atendimento ou quando chegar uma mensagem c
 Dados de equipe e fluxos utilizam as tabelas privadas já existentes; contas técnicas internas de funcionários não são endereços de e-mail do usuário. Senhas usam scrypt; busca do acesso utiliza uma impressão HMAC do servidor, e sessões guardam somente hashes de tokens. Índices de unicidade e das filas estão em `supabase/migrations/*_startsys_team_and_flow_indexes.sql`. Essa atualização não habilita equipes nem cria funcionários ou fluxos automaticamente para contas existentes.
 
 Validação adicional: testes locais de entrada de funcionário, isolamento por empresa, atribuição concorrente, transferência, revogação de sessão, reset de senha, 30 áudios em um fluxo, condições, espera por resposta, interrupção por atendimento humano e preservação do histórico das execuções. Os testes de navegador usam banco em memória e WhatsApp simulado, sem enviar mensagens a contatos reais.
+
+## Atualização 1.4 — entrada, atendimento e quadro
+
+Sem migração de banco: novos registros usam as tabelas privadas existentes. O endpoint autenticado `/changes` mantém uma consulta de até 25 segundos e retorna somente um cursor de invalidação; dados são buscados novamente com autorização atual. O cursor é separado por empresa, e a interface atualiza também após voltar à aba ou recuperar internet.
+
+Testes temporários recebem tokens limitados a 24 horas, criação limitada por IP e limpeza automática de conexões e registros expirados. Convites não contêm o código empresarial nem senhas; somente o hash do token fica salvo. Funcionários continuam sem acesso às chaves, dados privados do administrador ou conversas atribuídas a outra pessoa.
+
+A interface é inspirada no WhatsApp Web; não é uma implementação integral do cliente oficial. Chamadas de voz/vídeo, Status e Canais não estão implementados. Histórico antigo depende do que o WhatsApp disponibiliza na vinculação. Validação de envio, recebimento, áudio e mídia com celulares reais ainda precisa de um número pareado pelo responsável.

@@ -31,3 +31,12 @@ Interface publicada no GitHub Pages e serviço persistente publicado no Railway.
 - GitHub Pages e Actions concluíram a publicação com sucesso. A tela de entrada foi verificada em `https://delta-1.github.io/STARSIS/`. O bloqueio inicial de habilitação do Pages foi resolvido.
 
 Nenhuma mensagem foi enviada a clientes durante a verificação. Os dados fictícios de QA são removidos ao término da validação. A imagem `StartSys_preview.jpg` mostra o modo demonstração, com dados fictícios.
+
+
+## 1.4 — 05/11/2026 (Acre)
+
+- `npm test`: 31 testes, incluindo QR antes do cadastro, preservação do teste ao cadastrar, revogação da sessão temporária, convites com hash e revogação, cadastro por código condicionado à configuração, quadro compartilhado com isolamento entre empresas e conflito de revisão, e invalidação separada por empresa.
+- `npm run build`: TypeScript e Vite compilados.
+- Prévia no navegador: conversas, abertura de histórico, Kanban, atribuição de responsável, criação/edição de post-it e arraste livre conferidos visualmente. Demonstração não envia mensagens reais.
+- Produção: QR real gerado antes do cadastro; nota salva e movida no banco; alteração com revisão antiga rejeitada; cursor autenticado recebido; convites bloqueados no teste; espaço temporário removido e sessão revogada.
+- Limites: não foi pareado celular real nesta etapa. Lembretes de post-its exigem o sistema aberto; não há serviço push em segundo plano.

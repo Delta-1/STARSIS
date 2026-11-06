@@ -1,10 +1,11 @@
+import {clientId} from './api';
 import {useEffect,useRef,useState} from 'react';
 import {ArrowLeft,ArrowRight,Bot,Check,Clock,GitBranch,GripHorizontal,Headphones,LoaderCircle,MessageCircle,Mic,Play,Plus,Save,Trash2,Workflow,X,ZoomIn,ZoomOut} from 'lucide-react';
 import {json} from './api';
 import {handles,nextNode,validateFlow,simulateFlow} from '../gateway/flow-domain.js';
 import AudioLibrary from './AudioLibrary';
 type Row=Record<string,any>;
-const uid=()=>crypto.randomUUID();
+const uid=()=>clientId();
 const definitions:Row={start:{name:'Início',icon:Play,color:'#a78bfa'},text:{name:'Enviar texto',icon:MessageCircle,color:'#6bcda0'},audio:{name:'Enviar áudio',icon:Mic,color:'#69b5e8'},condition:{name:'Condição',icon:GitBranch,color:'#ca91ed'},delay:{name:'Aguardar',icon:Clock,color:'#e9b967'},reply:{name:'Esperar resposta',icon:MessageCircle,color:'#78d7d8'},ai:{name:'Consultar IA',icon:Bot,color:'#ba9cfa'},handoff:{name:'Atendimento humano',icon:Headphones,color:'#efae7b'},end:{name:'Fim',icon:Check,color:'#94a3b8'}};
 const handleName=(s:string)=>({out:'Próxima etapa',yes:'Sim',no:'Não',reply:'Respondeu',timeout:'Sem resposta'}[s]||s);
 const signature=(r:Row)=>JSON.stringify({name:r.name,enabled:r.enabled,trigger:r.trigger,numberId:r.numberId||'',matchMode:r.matchMode,keywords:r.keywords||'',cooldownMinutes:r.cooldownMinutes,priority:r.priority,flow:r.flow});
