@@ -22,6 +22,37 @@ export function createTeam(deps){
   if(!account||!await verifyPassword(password,account.password_hash))throw fail(401,'Código da empresa ou senha incorretos.');
   await identify(account);return account;
  }
+ async function inviteCompany(input){
+  let cid;
+  if(input.invite){
+   const token=String(input.invite);if(!/^[A-Za-z0-9_-]{43}$/.test(token))throw fail(400,'Convite inválido.');
+   const {data,error}=await db.from('startsys_records').select('company_id,data').eq('id','team-invite:'+tokenHash(token)).eq('kind','team-invite').maybeSingle();
+   if(error)throw fail(503,'Não foi possível verificar o convite.');
+   if(!data||Date.parse(data.data.expiresAt)<Date.now())throw fail(410,'Este convite expirou ou foi revogado. Peça um novo link à empresa.');cid=data.company_id;
+  }else{
+   const code=String(input.companyCode||'').trim();if(!/^\d{4}$/.test(code))throw fail(400,'Informe os quatro dígitos da empresa.');
+   const {data,error}=await db.from('startsys_records').select('company_id').eq('id','team-code:'+code).eq('kind','team-code').maybeSingle();
+   if(error)throw fail(503,'Não foi possível verificar o código.');if(!data)throw fail(404,'Código não encontrado.');cid=data.company_id;
+  }
+  const company=await companyById(cid);
+  if(!company.settings.teamEnabled||company.settings.usageMode==='personal'||(!input.invite&&!company.settings.allowCodeSignup))throw fail(403,'Peça à empresa um link de convite ou a sua senha individual.');
+  return company;
+ }
+ async function inviteInfo(input){const c=await inviteCompany(input);return {companyName:c.name};}
+ async function enroll(input){
+  const co=await inviteCompany(input);
+  return serial('team-enroll:'+co.id,async()=>{
+   await inviteCompany(input);
+   const name=String(input.name||'').trim();if(name.length<2||name.length>120)throw fail(400,'Informe seu nome completo.');
+   const password=String(input.password||''),hash=await hashPassword(password).catch(e=>{throw fail(400,e.message);});
+   if((await rows(co.id,'employee',201)).length>=200)throw fail(400,'Limite de funcionários atingido. Fale com a empresa.');
+   const duplicate=await db.from('startsys_records').select('id').eq('company_id',co.id).eq('kind','employee').eq('data->>loginFingerprint',fingerprint(password)).limit(1);
+   if(duplicate.error)throw fail(503,'Não foi possível validar o acesso.');if(duplicate.data.length)throw fail(400,'Escolha outra senha para seu acesso individual.');
+   const id=randomUUID();const {data:account,error}=await db.from('startsys_accounts').insert({email:id+STAFF_DOMAIN,full_name:name,password_hash:hash}).select().single();if(error)throw fail(503,'Não foi possível criar o acesso.');
+   try{await put(co.id,'employee',{name,accountId:account.id,active:true,loginFingerprint:fingerprint(password)},id);}catch(e){await db.from('startsys_accounts').delete().eq('id',account.id);throw e;}
+   await audit(co.id,`${name} entrou na equipe por convite.`,'team');return account;
+  });
+ }
  async function codeFor(cid){
   return serial(`team-code:${cid}`,async()=>{
    const {data,error}=await db.from('startsys_records').select('data').eq('company_id',cid).eq('kind','team-code').maybeSingle();if(error)throw fail(503,'Não foi possível consultar o código.');if(data)return data.data.code;
@@ -33,7 +64,7 @@ export function createTeam(deps){
  async function owned(req,id,reply=false){
   let c=await get(req.company.id,id,'contact');if(c.redirectTo)c=await get(req.company.id,c.redirectTo,'contact');if(req.employee&&!(reply==='history'?c.assignedTo===req.employee.id:reply?staffCanReply(req.employee,c):staffVisible(req.employee,c)))throw fail(403,'Este atendimento não está atribuído a você.');return c;
  }
- async function canSend(req,id){if(!req.employee)return true;const [company,employee]=await Promise.all([companyById(req.company.id),get(req.company.id,req.employee.id,'employee')]);if(!company.settings.teamEnabled||company.settings.usageMode==='personal'||employee.active===false)throw fail(403,'O acesso da equipe foi desativado.');await owned(req,id,true);return true;}
+ async function canSend(req,id){if(!req.employee){const c=await get(req.company.id,id,'contact');if(req.company.settings.teamEnabled&&c.assignedTo&&c.assignedTo!==req.account.id)throw fail(409,'Outro atendente está responsável. Assuma ou transfira o atendimento antes de responder.');return true;}const [company,employee]=await Promise.all([companyById(req.company.id),get(req.company.id,req.employee.id,'employee')]);if(!company.settings.teamEnabled||company.settings.usageMode==='personal'||employee.active===false)throw fail(403,'O acesso da equipe foi desativado.');await owned(req,id,true);return true;}
  async function mediaAccess(req,id){
   const cid=req.company.id;
   const shared=await db.from('startsys_records').select('id').eq('company_id',cid).in('kind',['sticker','audio-clip']).eq('data->>mediaId',id).limit(1);if(shared.error)throw fail(503,'Não foi possível verificar o anexo.');if(shared.data?.length)return;
@@ -46,9 +77,11 @@ export function createTeam(deps){
    const [contacts,stickers,directory]=await Promise.all([rows(cid,'contact'),rows(cid,'sticker'),employees(cid)]);
    return res.json({company:{id:cid,name:req.company.name,settings:{teamEnabled:true,usageMode:'company',timezone:req.company.settings.timezone}},contacts:contacts.filter(c=>staffVisible(req.employee,c)).map(c=>({...c,...(!c.assignedTo?{notes:'',email:'',business:'',tags:'',mergedContactIds:[]}:{} )})),stickers,employees:directory,agents:[],numbers:[],automations:[],meetings:[],activity:[]});
   }
-  if(method==='GET'&&['/team/directory','/flows/catalog','/audio-clips'].includes(path)||method==='POST'&&path==='/team/password')return next();
+  if((path==='/whiteboard'||/^\/whiteboard\/[^/]+$/.test(path))&&['GET','POST','PATCH','DELETE'].includes(method))return next();
+  if(method==='GET'&&['/changes','/team/directory','/flows/catalog','/audio-clips'].includes(path)||method==='POST'&&path==='/team/password')return next();
   const contactRoute=path.match(/^\/contacts\/([^/]+)\/(messages|read)$/);
   if(contactRoute&&((method==='GET'&&contactRoute[2]==='messages')||(method==='POST'&&contactRoute[2]==='read'))){await owned(req,contactRoute[1],'history');return next();}
+  if(method==='POST'&&/^\/messages\/[^/]+\/reaction$/.test(path)){const m=await get(cid,path.split('/')[2],'message');await owned(req,m.contactId,true);return next();}
   if(method==='POST'&&path==='/send'){await owned(req,String(req.body.contactId||''),true);return next();}
   if(method==='POST'&&/^\/team\/contacts\/[^/]+\/(claim|transfer|status)$/.test(path))return next();
   if(method==='GET'&&path.startsWith('/media/')){await mediaAccess(req,decodeURIComponent(path.slice(7)));return next();}
@@ -63,9 +96,18 @@ export function createTeam(deps){
   return c;
  }
  function install(app){
-  app.get('/team',async(req,res)=>res.json({code:await codeFor(req.company.id),enabled:!!req.company.settings.teamEnabled,employees:await employees(req.company.id)}));
-  app.get('/team/directory',async(req,res)=>res.json((await employees(req.company.id)).filter(e=>e.active)));
+  app.post('/team/invite',async(req,res)=>serial('team-enroll:'+req.company.id,async()=>{
+   if(req.company.settings.trial)throw fail(403,'Salve sua conta antes de convidar a equipe.');
+   if(!req.company.settings.teamEnabled||req.company.settings.usageMode==='personal')throw fail(400,'Habilite a equipe primeiro.');
+   const {error}=await db.from('startsys_records').delete().eq('company_id',req.company.id).eq('kind','team-invite');if(error)throw fail(503,'Não foi possível revogar o convite anterior.');
+   if(req.body.revoke)return res.json({ok:true});
+   const token=randomBytes(32).toString('base64url'),expiresAt=new Date(Date.now()+7*86400000).toISOString();
+   await put(req.company.id,'team-invite',{expiresAt},'team-invite:'+tokenHash(token));res.json({invite:token,expiresAt});
+  }));
+  app.get('/team',async(req,res)=>res.json({code:await codeFor(req.company.id),enabled:!!req.company.settings.teamEnabled,employees:await employees(req.company.id),allowCodeSignup:!!req.company.settings.allowCodeSignup}));
+  app.get('/team/directory',async(req,res)=>{const {data:owner}=await db.from('startsys_accounts').select('id,full_name').eq('id',req.company.owner_id).maybeSingle();res.json([...(owner?[{id:owner.id,name:owner.full_name,active:true,role:'owner'}]:[]),...(await employees(req.company.id)).filter(e=>e.active)]);});
   app.post('/team/employees',async(req,res)=>{
+   if(req.company.settings.trial)throw fail(403,'Salve sua conta antes de convidar a equipe.');
    if(!req.company.settings.teamEnabled||req.company.settings.usageMode==='personal')throw fail(400,'Habilite o atendimento com equipe nas configurações.');
    const name=String(req.body.name||'').trim().slice(0,120);if(name.length<2)throw fail(400,'Informe o nome do funcionário.');
    if((await rows(req.company.id,'employee',201)).length>=200)throw fail(400,'Limite de 200 funcionários por empresa.');
@@ -94,15 +136,15 @@ export function createTeam(deps){
     const c=await get(req.company.id,initial.id,'contact');if(c.redirectTo)throw fail(409,'Este contato foi unificado. Atualize a tela.');
     if(action==='claim'){
      if(req.employee&&c.assignedTo&&c.assignedTo!==req.employee.id)throw fail(409,'Outro funcionário já assumiu este atendimento.');
-     const target=req.employee?.id||String(req.body.employeeId||'');if(!target)throw fail(400,'Escolha o funcionário responsável.');const employee=await get(req.company.id,target,'employee');if(employee.active===false)throw fail(400,'Funcionário inativo.');c.assignedTo=target;c.attendanceStatus='active';c.attendanceStartedAt=new Date().toISOString();c.closedAt=null;c.paused=true;
+     const target=req.employee?.id||(req.body.employeeId==='self'?req.company.owner_id:String(req.body.employeeId||''));if(!target)throw fail(400,'Escolha o funcionário responsável.');const employee=target===req.company.owner_id?{id:target,active:true}:await get(req.company.id,target,'employee');if(employee.active===false)throw fail(400,'Funcionário inativo.');c.assignedTo=target;c.attendanceStatus='active';c.attendanceStartedAt=new Date().toISOString();c.closedAt=null;c.paused=true;
     }else{
      if(req.employee&&!(staffCanReply(req.employee,c)||action==='status'&&req.body.status==='active'&&c.assignedTo===req.employee.id))throw fail(403,'Este atendimento não está atribuído a você.');
-     if(action==='transfer'){const target=String(req.body.employeeId||'');const employee=await get(req.company.id,target,'employee');if(employee.active===false)throw fail(400,'Funcionário inativo.');c.assignedTo=target;c.attendanceStatus='active';c.paused=true;}
+     if(action==='transfer'){const target=String(req.body.employeeId||'');const employee=target===req.company.owner_id?{id:target,active:true}:await get(req.company.id,target,'employee');if(employee.active===false)throw fail(400,'Funcionário inativo.');c.assignedTo=target;c.attendanceStatus='active';c.paused=true;}
      else{if(!['active','replied','closed','waiting'].includes(req.body.status))throw fail(400,'Status inválido.');c.attendanceStatus=req.body.status;if(req.body.status==='closed'){c.closedAt=new Date().toISOString();c.paused=true;}if(req.body.status==='waiting'){c.assignedTo=null;c.paused=true;}}
     }
     c.activeFlowId=null;await put(req.company.id,'contact',c,c.id);cancelFlow(req.company.id,c.id).catch(()=>{});await audit(req.company.id,`${req.employee?.name||'Administrador'}: atendimento de ${c.name} ${action==='transfer'?'transferido':action==='claim'?'assumido':c.attendanceStatus==='closed'?'finalizado':'atualizado'}.`,'attendance',null,c.id);res.json(c);
    });
   });
  }
- return {identify,login,gate,install,codeFor,employees,owned,canSend,onIncoming,setFlowControl:fn=>{cancelFlow=fn;}};
+ return {identify,login,inviteInfo,enroll,gate,install,codeFor,employees,owned,canSend,onIncoming,setFlowControl:fn=>{cancelFlow=fn;}};
 }

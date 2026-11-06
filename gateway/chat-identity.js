@@ -19,7 +19,7 @@ export async function resolveIdentity(key,sock,lookup=async()=>null){
 export function contactLabel(identity,old={},pushName=''){
  if(identity.isGroup)return old.name||'Grupo do WhatsApp';
  // A LID is an opaque identifier. It must never be displayed as a phone number.
- return identity.phone||old.phone||old.nameCustom||old.pushName||pushName||'Contato do WhatsApp';
+ return old.nameCustom||old.pushName||pushName||identity.phone||old.phone||'Contato do WhatsApp';
 }
 export function canAutoReplyToGroup(contact,incoming,ownIds=[]){
  if(!contact.isGroup)return true;
