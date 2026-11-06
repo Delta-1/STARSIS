@@ -82,6 +82,7 @@ export function createTeam(deps){
   const contactRoute=path.match(/^\/contacts\/([^/]+)\/(messages|read)$/);
   if(contactRoute&&((method==='GET'&&contactRoute[2]==='messages')||(method==='POST'&&contactRoute[2]==='read'))){await owned(req,contactRoute[1],'history');return next();}
   if(method==='POST'&&/^\/messages\/[^/]+\/reaction$/.test(path)){const m=await get(cid,path.split('/')[2],'message');await owned(req,m.contactId,true);return next();}
+  if(method==='GET'&&/^\/send\/[\w-]+$/.test(path))return next();
   if(method==='POST'&&path==='/send'){await owned(req,String(req.body.contactId||''),true);return next();}
   if(method==='POST'&&/^\/team\/contacts\/[^/]+\/(claim|transfer|status)$/.test(path))return next();
   if(method==='GET'&&path.startsWith('/media/')){await mediaAccess(req,decodeURIComponent(path.slice(7)));return next();}

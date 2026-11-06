@@ -19,9 +19,9 @@ GitHub Pages não executa um servidor Node nem mantém sockets do WhatsApp. O Ra
 4. Em **Funcionários**, habilite a equipe, gere o **link de cadastro** e distribua-o aos atendentes. Cada pessoa cria nome e senha e já entra no atendimento da empresa. O link dura sete dias e pode ser revogado; gerar outro substitui o anterior. Também há cadastro por código de quatro dígitos, quando explicitamente habilitado pelo administrador, além do acesso individual criado pelo administrador.
 5. O **Kanban de atendimento** é operacional: **A fazer** e **Em andamento**. Assumir reserva a conversa para uma única pessoa; transferência revoga o acesso do responsável anterior. Finalizar preserva o histórico e uma nova mensagem reabre a fila. O funil de vendas continua disponível em **Aplicativos → Oportunidades**.
 6. O **Quadro branco** é compartilhado por todos da empresa. Crie post-its, escolha a cor, edite o texto, arraste livremente e marque como concluído. Setas do teclado também movem as notas. Um lembrete opcional gera aviso dentro do Starsis e, com permissão, no navegador, enquanto o sistema estiver aberto. Notas usam revisão para evitar sobrescrever mudanças simultâneas.
-7. Configure agentes de IA, automações e agenda em **Aplicativos**. A chave de API continua somente no servidor. O atendimento automático precisa ser habilitado explicitamente.
+7. Em **Aplicativos → Agentes de IA → Ativar bot padrão**, a Sofia já está pronta para receber clientes, coletar informações para orçamento e encaminhar para a equipe. Não exige chave de IA. Agentes com respostas livres, voz e conhecimento personalizado continuam opcionais e exigem provedor configurado.
 
-**Demonstração** usa dados fictícios em memória e não envia mensagens nem altera a empresa real. Números reais, leitura do QR Code e a chave de IA do provedor são necessários para operar.
+**Demonstração** usa dados fictícios em memória e não envia mensagens nem altera a empresa real. Para operar no WhatsApp, é preciso conectar um número real pelo QR Code. O bot padrão por roteiro funciona sem chave; os recursos de IA e voz precisam dos respectivos provedores.
 
 ## Recursos implementados
 
@@ -125,3 +125,14 @@ Em **Conversas → Grupos**, abra um grupo e responda no próprio grupo, incluin
 No Kanban, o filtro **Grupos** inclui grupos sincronizados sem mensagens anteriores. O atendente assume o grupo para abrir o histórico e responder; transferência muda o responsável e revoga o acesso anterior. Cada mensagem recebida mostra autor; respostas humanas enviadas pelo Starsis registram o operador dentro do CRM. Isso não acrescenta assinatura automática ao texto enviado para o WhatsApp.
 
 Grupos de avisos que só aceitam administradores têm o envio bloqueado quando o número conectado não é administrador. A permissão é conferida novamente no WhatsApp a cada envio. A IA continua pausada por padrão nos grupos.
+
+## Envio e bot padrão — 1.5
+
+- Mensagens digitadas e figurinhas aparecem imediatamente como **Enviando**. A confirmação do servidor substitui a mesma mensagem, sem bolhas duplicadas e sem esperar o bootstrap ou o histórico inteiro.
+- Envios manuais e mensagens novas têm prioridade sobre o histórico importado, mantendo exclusão entre envio, atribuição e transferência. Downloads de anexos recebidos usam outra fila.
+- As chaves Signal são criptografadas e persistidas em lote, com cache por conexão. Uma transação de centenas de chaves deixa de fazer uma gravação individual por chave.
+- Quando o WhatsApp demora, o servidor devolve confirmação pendente após oito segundos e continua o trabalho. A interface consulta o resultado pelo mesmo identificador; nenhuma tentativa ambígua é reenviada automaticamente. O tempo de entrega real depende da conexão com o WhatsApp e deve ser validado com celulares.
+- A Sofia vem desativada, pronta para ativar. O botão também liga o atendimento automático e muda o modo somente equipe para híbrido. O roteiro usa nome, descrição e horário da empresa já cadastrados; oferece informações, orçamento e atendimento humano, registra o resumo e deixa a conversa na fila. Áudios e solicitações fora do roteiro são encaminhados à equipe. Não inventa preços ou prazos, não responde a contatos pausados/assumidos e respeita pedidos para parar.
+- O bot padrão responde por texto e por roteiro; não oferece raciocínio livre, transcrição ou voz. Agentes de IA avançados continuam separados e exigem chave do provedor.
+
+Veja a [lista de funcionalidades e pendências](docs/FUNCIONALIDADES.md).

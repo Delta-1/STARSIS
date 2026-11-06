@@ -3,8 +3,8 @@ let sessionGeneration=0;
 let accessToken=sessionStorage.getItem('startsys-token')||localStorage.getItem('startsys-token')||'';
 export function setToken(token:string,remember=false){sessionGeneration++;clearMedia();accessToken=token;sessionStorage.removeItem('startsys-token');localStorage.removeItem('startsys-token');if(token)(remember?localStorage:sessionStorage).setItem('startsys-token',token);}
 export const hasToken=()=>!!accessToken;
-export async function json(path:string,method='GET',body?:any,token=accessToken):Promise<any>{const r=await fetch(`${API}/${path}`,{method,signal:AbortSignal.timeout(95000),headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:body===undefined?undefined:JSON.stringify(body)});const data:any=await r.json().catch(()=>({error:'Serviço temporariamente indisponível. Tente novamente.'}));if(!r.ok){if(r.status===401&&!path.startsWith('auth/'))window.dispatchEvent(new Event('startsys-session-expired'));throw Error(data.error||'Não foi possível concluir.');}return data;}
-export function subscribeChanges(onChange:()=>void) {
+export async function json(path:string,method='GET',body?:any,token=accessToken):Promise<any>{const r=await fetch(`${API}/${path}`,{method,signal:AbortSignal.timeout(95000),headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:body===undefined?undefined:JSON.stringify(body)});const data:any=await r.json().catch(()=>({error:'Serviço temporariamente indisponível. Tente novamente.'}));if(!r.ok){if(r.status===401&&!path.startsWith('auth/'))window.dispatchEvent(new Event('startsys-session-expired'));throw Object.assign(Error(data.error||'Não foi possível concluir.'),{status:r.status});}return data;}
+export function subscribeChanges(onChange:()=>void|Promise<unknown>) {
  let stopped=false,cursor='',controller:AbortController|undefined,timer:ReturnType<typeof setTimeout>;
  const generation=sessionGeneration;
  async function poll(){
@@ -16,9 +16,9 @@ export function subscribeChanges(onChange:()=>void) {
    if(response.status===401){window.dispatchEvent(new Event('startsys-session-expired'));return;}
    if(!response.ok)throw Error('offline');
    const value=await response.json();cursor=value.cursor;
-   if(!stopped&&value.changed)onChange();
+   if(!stopped&&value.changed)await onChange();
    if(!stopped)timer=setTimeout(poll,200);
-  }catch{if(!stopped)timer=setTimeout(()=>{onChange();poll();},5000);}
+  }catch{if(!stopped)timer=setTimeout(async()=>{try{await onChange();}finally{poll();}},5000);}
  }
  const wake=()=>{if(!document.hidden)onChange();};
  document.addEventListener('visibilitychange',wake);window.addEventListener('online',wake);poll();

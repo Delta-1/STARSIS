@@ -55,3 +55,15 @@ Nenhuma mensagem foi enviada a clientes durante a verificação. Os dados fictí
 - Testes verificam permissão por telefone/LID, grupos restritos a administradores, isolamento por empresa e transferência de grupo entre atendentes.
 - Prévia: listagem de grupos, resposta em demonstração com identificação dos autores, bloqueio de envio em grupo de avisos e abertura de grupo vazio no Kanban.
 - `npm test`: 36 testes passaram; TypeScript/Vite e sintaxe do servidor validados. Sem envio real para grupos ou contatos durante a verificação.
+
+## Envio e bot pronto — 06/11/2026
+
+- Testes de fila: envio manual passa à frente de cem tarefas de histórico pendentes, com exclusão e ordem preservadas; uma falha não interrompe tarefas seguintes.
+- API de envio: HTTP 202 em submissão lenta, consulta posterior, identificadores idempotentes, isolamento por empresa e acesso revogado depois da transferência. Falha ambígua não provoca reenvio.
+- Mensagens: confirmação via histórico/push ou POST substitui a bolha pendente, sem duplicar ou regredir a confirmação.
+- Chaves Signal: lote criptografado de 200 chaves, leitura por empresa, remoção e falhas de persistência testados.
+- Bot padrão: saudação, informações, orçamento, contexto da empresa, pedido de humano, áudio para equipe e opt-out; ativação única habilita o modo híbrido e não altera outra empresa.
+- Navegador: botão pronto de ativação e pausa no desktop e em quadro de 390 px. Verificação isolada do hook de envio com API simulada: Enviando imediato, confirmação, falha por desconexão e confirmação incerta por queda de rede. Sem envio para clientes.
+- Limite: melhorias foram validadas com fila, API e mídia simuladas/localmente. A latência e o recebimento ponta a ponta precisam de celulares pareados.
+
+- Resultado local final: 46 testes de comportamento e 2 testes de mídia passaram; TypeScript/Vite e sintaxe do servidor aprovados. Testes locais de mídia usaram o FFmpeg disponível no ambiente; CI valida também a dependência ffmpeg-static do servidor.
